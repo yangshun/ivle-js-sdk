@@ -63,7 +63,26 @@
   IVLE.checkLoginStatus = function () {
     var storedApiKey = localStorage.getItem('ivle:apiKey');
     var storedAuthToken = localStorage.getItem('ivle:authToken');
+
+    var query = window.location.search;
+    var authToken = null;
+    if (query.charAt(0) === '?') {
+      query = query.substring(1);
+      var vars = query.split('&');
+      for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (pair[0] === 'token') {
+          authToken = pair[1].replace('/', '');
+          break;
+        }
+      }
+    }
+    if (authToken) {
+      storedAuthToken = authToken;
+    }
+
     if (storedApiKey && storedAuthToken) {
+      console.log('IVLE: Validating tokens...', storedApiKey, storedAuthToken);
       $.ajax({
         url:'https://ivle.nus.edu.sg/api/Lapi.svc/Validate?APIKey=' + storedApiKey + '&Token=' + storedAuthToken, 
         dataType: 'jsonp',
