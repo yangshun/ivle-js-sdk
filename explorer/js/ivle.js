@@ -82,15 +82,15 @@
     }
 
     if (storedApiKey && storedAuthToken) {
-      console.log('IVLE: Validating tokens...', storedApiKey, storedAuthToken);
       $.ajax({
         url:'https://ivle.nus.edu.sg/api/Lapi.svc/Validate?APIKey=' + storedApiKey + '&Token=' + storedAuthToken, 
         dataType: 'jsonp',
         success: function (data) {
           if (data.Success) {
+            localStorage.setItem('ivle:authToken', data.Token);
             status.initialized = true;
             status.loggedIn = true;
-            console.log('IVLE: User is logged in');
+            console.log('IVLE: Tokens are valid. User is logged in.');
           }
         },
         error: function (data) {
