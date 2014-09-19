@@ -129,23 +129,25 @@
       return;
     }
     var url = AUTH_URL + '?apikey=' + config.apiKey + '&url=';
-    if (config.popup) {
-      var options = 'dependent, toolbar=no, location=no, directories=no, ' +
-                    'status=no, menubar=no, scrollbars=no, resizable=no, ' +
-                    'copyhistory=no, ' +
-                    'width=' + config.popupWindow.width + ', ' +
-                    'height=' + config.popupWindow.height + ', ' +
-                    'top=' + config.popupWindow.top + ', ' +
-                    'left=' + config.popupWindow.left;
-      if (callback) {
-        IVLE.loginCallback = callback;
-      }
-      var popUpUrl =  url + encodeURIComponent(IVLE_SDK_AUTH_URL);
-      window.open(popUpUrl, '', options);
-    } else {
-      var ivleAuthUrl = url + encodeURIComponent(config.callbackUrl);
-      window.location.href = ivleAuthUrl;
-    }
+    // if (config.popup) {
+    //   var options = 'dependent, toolbar=no, location=no, directories=no, ' +
+    //                 'status=no, menubar=no, scrollbars=no, resizable=no, ' +
+    //                 'copyhistory=no, ' +
+    //                 'width=' + config.popupWindow.width + ', ' +
+    //                 'height=' + config.popupWindow.height + ', ' +
+    //                 'top=' + config.popupWindow.top + ', ' +
+    //                 'left=' + config.popupWindow.left;
+    //   if (callback) {
+    //     IVLE.loginCallback = callback;
+    //   }
+    //   var popUpUrl =  url + encodeURIComponent(IVLE_SDK_AUTH_URL);
+    //   window.open(popUpUrl, '', options);
+    // } else {
+    //   var ivleAuthUrl = url + encodeURIComponent(config.callbackUrl);
+    //   window.location.href = ivleAuthUrl;
+    // }
+    var ivleAuthUrl = url + encodeURIComponent(config.callbackUrl);
+    window.location.href = ivleAuthUrl;
   }
 
   IVLE.logout = function (callback) {
