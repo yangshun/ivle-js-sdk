@@ -25,6 +25,9 @@
         <p>Hello world! This is HTML5 Boilerplate.</p>
         <button onclick="login()">Login</button>
         <button onclick="logout()">Logout</button>
+        <button onclick="getModules()">Get Modules</button>
+
+        <pre id="output"></pre>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
@@ -49,6 +52,17 @@
                 IVLE.logout(function (response) {
                     console.log('UI Logged out of IVLE!');
                     console.log(response);
+                });
+            }
+
+            function getModules () {
+                console.log('Getting modules');
+                IVLE.api('Modules', {
+                    Duration: 24 * 60 * 60,
+                    IncludeAllInfo: false
+                }, function (data) {
+                    console.log('Modules obtained');
+                    $('#output').text(JSON.stringify(data, undefined, 2));
                 });
             }
         </script>

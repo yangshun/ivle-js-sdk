@@ -1,7 +1,7 @@
 (function (root) {
   root.IVLE = root.IVLE || {};
   root.IVLE.VERSION = '0.0.1';
-} (this));
+}(this));
 
 (function (root) {
 
@@ -82,27 +82,24 @@
     }
 
     if (storedApiKey && storedAuthToken) {
-      $.ajax({
-        url:'https://ivle.nus.edu.sg/api/Lapi.svc/Validate?APIKey=' + storedApiKey + '&Token=' + storedAuthToken, 
-        dataType: 'jsonp',
-        success: function (data) {
-          if (data.Success) {
-            localStorage.setItem('ivle:authToken', data.Token);
-            status.initialized = true;
-            status.loggedIn = true;
-            console.log('IVLE: Tokens are valid. User is logged in.');
-          }
-        },
-        error: function (data) {
-          console.log(data);
+      IVLE.api('Validate', {
+        APIKey: storedApiKey,
+        Token: storedAuthToken
+      }, function (data) {
+        if (data.Success) {
+          localStorage.setItem('ivle:authToken', data.Token);
+          user.authToken = data.Token;
+          config.apiKey = storedApiKey;
+          status.initialized = true;
+          status.loggedIn = true;
+          console.log('IVLE: Tokens are valid. User is logged in.');
+        } else {
           localStorage.removeItem('ivle:apiKey');
           localStorage.removeItem('ivle:authToken');
         }
       });
     }
   };
-
-  IVLE.checkLoginStatus();
 
   /* User-defined login callback */
   IVLE.loginCallback = undefined;
@@ -169,4 +166,46 @@
     }
   }
 
-} (this));
+  function injectKeyAndToken (params) {
+    if (!params.APIKey) {
+      params.APIKey = config.apiKey;
+    }
+    if (!params.AuthToken) {
+      params.AuthToken = user.authToken;
+    }
+    if (!params.Token) {
+      params.Token = user.authToken;
+    }
+    return params;
+  }
+
+  IVLE.api = function (path, params, callback) {
+    var url = API_URL + path;
+    var newParams = injectKeyAndToken(params);
+    var queryStringArray = [];
+    for (var key in newParams) {
+      if (newParams.hasOwnProperty(key)) {
+        queryStringArray.push(key + '=' + newParams[key]);
+      }
+    }
+    var queryString = queryStringArray.join('&');
+
+    $.ajax({
+      url: url + '?' +  queryString, 
+      dataType: 'jsonp',
+      success: function (data) {
+        if (callback) {
+          callback(data);
+        }
+      },
+      error: function (data) {
+        if (callback) {
+          callback(data);
+        }
+      }
+    });
+  }
+
+  IVLE.checkLoginStatus();
+
+}(this));
