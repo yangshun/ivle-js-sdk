@@ -1,0 +1,28 @@
+{
+  "name": "ivle-js-sdk",
+  "version": "0.0.1",
+  "homepage": "https://github.com/yangshun/ivle-js-sdk",
+  "authors": [
+    {
+      "name": "Tay Yang Shun",
+      "email": "tay.yang.shun@gmail.com",
+      "url": "http://yangshun.im"
+    }
+  ],
+  "description": "JavaScript wrapper for NUS IVLE LAPI",
+  "main": "ivle.js",
+  "dependencies": {
+    "jquery": ">= 1.7.1"
+  },
+  "keywords": [
+    "ivle"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
