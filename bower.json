@@ -12,7 +12,7 @@
   "description": "JavaScript wrapper for NUS IVLE LAPI",
   "main": "ivle.js",
   "dependencies": {
-    "jquery": ">= 1.7.1"
+    "jquery": "~2.1.1"
   },
   "keywords": [
     "ivle"
