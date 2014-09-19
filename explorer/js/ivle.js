@@ -16,7 +16,7 @@
   // IVLE LAPI URLs.
   var API_URL = 'https://ivle.nus.edu.sg/api/Lapi.svc/';
   var AUTH_URL = 'https://ivle.nus.edu.sg/api/login/';
-  var IVLE_SDK_AUTH_URL = 'http://localhost:8000/auth.html';
+  var IVLE_SDK_AUTH_URL = 'http://yangshun.github.io/ivle-js-sdk/auth.html';
 
   // Default configuration parameters.
   var config = {
