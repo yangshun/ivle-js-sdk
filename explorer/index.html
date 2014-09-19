@@ -23,12 +23,35 @@
 
         <!-- Add your site or application content here -->
         <p>Hello world! This is HTML5 Boilerplate.</p>
+        <button onclick="login()">Login</button>
+        <button onclick="logout()">Logout</button>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
+        <script src="js/ivle.js"></script>
+        <script>
+            IVLE.init({
+                apiKey: 'O8ieVUFb72IU7feHcKmO3',
+                callbackUrl: 'http://localhost:8000/',
+                popup: true
+            });
+            
+            function login () {
+                IVLE.login(function (response) {
+                    console.log('UI Logged in to IVLE!');
+                    console.log(response);
+                });
+            }
 
+            function logout () {
+                IVLE.logout(function (response) {
+                    console.log('UI Logged out of IVLE!');
+                    console.log(response);
+                });
+            }
+        </script>
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <script>
             (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
