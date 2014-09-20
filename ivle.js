@@ -19,6 +19,7 @@
   var IVLE_SDK_AUTH_URL = 'http://yangshun.github.io/ivle-js-sdk/auth.html';
 
   // Default configuration parameters.
+  var started = false;
   var config = {
     apiKey: null,
     callbackUrl: null,
@@ -93,6 +94,10 @@
           status.initialized = true;
           status.loggedIn = true;
           console.log('IVLE: Tokens are valid. User is logged in.');
+          if (!started && readyCallback) {
+            readyCallback();
+          }
+          started = true;
         } else {
           localStorage.removeItem('ivle:apiKey');
           localStorage.removeItem('ivle:authToken');
@@ -101,8 +106,9 @@
     }
   };
 
-  /* User-defined login callback */
-  IVLE.loginCallback = undefined;
+  /* User-defined callback functions */
+  loginCallback = undefined;
+  readyCallback = undefined;
 
   IVLE.loginHandler = function (response) {
     if (response.success) {
@@ -111,8 +117,8 @@
       user.authToken = response.authToken;
       status.loggedIn = true;
       localStorage.setItem('ivle:authToken', user.authToken);
-      if (IVLE.loginCallback) {
-        IVLE.loginCallback(response);
+      if (loginCallback) {
+        loginCallback(response);
       }
     } else {
       console.log(response.error);
@@ -148,7 +154,7 @@
     // }
     var ivleAuthUrl = url + encodeURIComponent(config.callbackUrl);
     window.location.href = ivleAuthUrl;
-  }
+  };
 
   IVLE.logout = function (callback) {
     if (!status.initialized) {
@@ -166,7 +172,23 @@
         callback(); 
       }
     }
-  }
+  };
+
+  IVLE.getAccessToken = function () {
+    if (!status.initialized) {
+      console.log('IVLE: IVLE.getAccessToken() called before IVLE.init(). Please IVLE.init() first');
+      return;
+    }
+    if (!status.loggedIn) {
+      console.log('IVLE: User is not logged in.');
+      return;
+    }
+    return user.authToken;
+  };
+
+  IVLE.status = function () {
+    return status;
+  };
 
   function injectKeyAndToken (params) {
     if (!params.APIKey) {
@@ -179,7 +201,7 @@
       params.Token = user.authToken;
     }
     return params;
-  }
+  };
 
   IVLE.api = function (path, params, callback) {
     var url = API_URL + path;
@@ -206,6 +228,10 @@
         }
       }
     });
+  };
+
+  IVLE.ready = function (fn) {
+    readyCallback = fn;
   }
 
   IVLE.checkLoginStatus();
