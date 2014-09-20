@@ -19,7 +19,7 @@
   var IVLE_SDK_AUTH_URL = 'http://yangshun.github.io/ivle-js-sdk/auth.html';
 
   // Default configuration parameters.
-  var started = false;
+  var initialized = false;
   var config = {
     apiKey: null,
     callbackUrl: null,
@@ -35,35 +35,13 @@
     authToken: null
   };
   var status = {
-    initialized: false,
     loggedIn: false
-  };
-
-  IVLE.init = function (params) {
-    if (!params.apiKey) {
-      console.log('IVLE: API Key is required to use the IVLE JS SDK.');
-      return;
-    } else {
-      localStorage.setItem('ivle:apiKey', params.apiKey);
-      config.apiKey = params.apiKey;
-    }
-
-    if (params.popup) {
-      config.popup = params.popup;
-    } else if (!params.callbackUrl) {
-      console.log('IVLE: callbackUrl has to be specified if popup mode not enabled.');
-      return;
-    } else {
-      config.callbackUrl = params.callbackUrl;
-    }
-    
-    status.initialized = true;
-    console.log('IVLE: SDK successfully initialized');
   };
 
   IVLE.checkLoginStatus = function () {
     var storedApiKey = localStorage.getItem('ivle:apiKey');
     var storedAuthToken = localStorage.getItem('ivle:authToken');
+    var storedCallbackUrl = localStorage.getItem('ivle:callbackUrl');
 
     var query = window.location.search;
     var authToken = null;
@@ -82,7 +60,7 @@
       storedAuthToken = authToken;
     }
 
-    if (storedApiKey && storedAuthToken) {
+    if (storedApiKey && storedAuthToken && storedCallbackUrl) {
       IVLE.api('Validate', {
         APIKey: storedApiKey,
         Token: storedAuthToken
@@ -91,16 +69,14 @@
           localStorage.setItem('ivle:authToken', data.Token);
           user.authToken = data.Token;
           config.apiKey = storedApiKey;
-          status.initialized = true;
           status.loggedIn = true;
           console.log('IVLE: Tokens are valid. User is logged in.');
-          if (!started && readyCallback) {
+          if (!initialized && readyCallback) {
             readyCallback();
           }
-          started = true;
+          initialized = true;
         } else {
-          localStorage.removeItem('ivle:apiKey');
-          localStorage.removeItem('ivle:authToken');
+          IVLE.flush();
         }
       });
     }
@@ -125,15 +101,29 @@
     }
   };
 
-  IVLE.login = function (callback) {
-    if (!status.initialized) {
-      console.log('IVLE: IVLE.login() called before IVLE.init(). Please init() first');
-      return;
-    }
+  IVLE.login = function (params, callback) {
+
     if (status.loggedIn) {
       console.log('IVLE: Unable to login because user already logged in.');
       return;
     }
+
+    if (!params.apiKey) {
+      console.log('IVLE: API Key is required to use the IVLE JS SDK.');
+      return;
+    } else {
+      localStorage.setItem('ivle:apiKey', params.apiKey);
+      config.apiKey = params.apiKey;
+    }
+
+    if (!params.callbackUrl) {
+      console.log('IVLE: Callback URL is required to use the IVLE JS SDK.');
+      return;
+    } else {
+      localStorage.setItem('ivle:callbackUrl', params.callbackUrl);
+      config.callbackUrl = params.callbackUrl;
+    }
+
     var url = AUTH_URL + '?apikey=' + config.apiKey + '&url=';
     // if (config.popup) {
     //   var options = 'dependent, toolbar=no, location=no, directories=no, ' +
@@ -157,16 +147,13 @@
   };
 
   IVLE.logout = function (callback) {
-    if (!status.initialized) {
-      console.log('IVLE: IVLE.logout() called before IVLE.init(). Please IVLE.init() first');
-      return;
-    }
+
     if (!status.loggedIn) {
       console.log('IVLE: Unable to logout because user is not logged in.');
       return;
     } else {
       status.loggedIn = false;
-      localStorage.removeItem('ivle:authToken');
+      IVLE.flush();
       console.log('IVLE: Successfully logged out.');
       if (callback) { 
         callback(); 
@@ -175,10 +162,6 @@
   };
 
   IVLE.getAccessToken = function () {
-    if (!status.initialized) {
-      console.log('IVLE: IVLE.getAccessToken() called before IVLE.init(). Please IVLE.init() first');
-      return;
-    }
     if (!status.loggedIn) {
       console.log('IVLE: User is not logged in.');
       return;
@@ -186,8 +169,8 @@
     return user.authToken;
   };
 
-  IVLE.status = function () {
-    return status;
+  IVLE.isLoggedIn = function () {
+    return status.loggedIn === true;
   };
 
   function injectKeyAndToken (params) {
@@ -204,6 +187,10 @@
   };
 
   IVLE.api = function (path, params, callback) {
+    if (!status.loggedIn && initialized) {
+      console.log('IVLE: User is not logged in.');
+      return;
+    }
     var url = API_URL + path;
     var newParams = injectKeyAndToken(params);
     var queryStringArray = [];
@@ -232,6 +219,12 @@
 
   IVLE.ready = function (fn) {
     readyCallback = fn;
+  }
+
+  IVLE.flush = function () {
+    localStorage.removeItem('ivle:apiKey');
+    localStorage.removeItem('ivle:authToken');
+    localStorage.removeItem('ivle:callbackUrl');
   }
 
   IVLE.checkLoginStatus();
